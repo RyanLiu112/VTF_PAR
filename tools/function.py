@@ -19,6 +19,7 @@ def ratio2weight(targets, ratio):
 
     return weights
 
+
 class LogVisual:
 
     def __init__(self, args):
@@ -98,7 +99,7 @@ def get_pedestrian_metrics(gt_label, preds_probs, threshold=0.45):
     result.label_prec = true_pos / (true_pos + false_pos + eps)
     result.label_acc = true_pos / (true_pos + false_pos + false_neg + eps)
     result.label_f1 = 2 * result.label_prec * result.label_pos_recall / (
-            result.label_prec + result.label_pos_recall + eps)
+        result.label_prec + result.label_pos_recall + eps)
 
     result.label_ma = label_ma
     result.ma = np.mean(label_ma)
@@ -131,6 +132,7 @@ def get_pedestrian_metrics(gt_label, preds_probs, threshold=0.45):
 
     return result
 
+
 def get_signle_metrics(gt_label, preds_probs, threshold=0.45):
     pred_label = preds_probs > threshold
 
@@ -162,7 +164,7 @@ def get_signle_metrics(gt_label, preds_probs, threshold=0.45):
     result.label_prec = true_pos / (true_pos + false_pos + eps)
     result.label_acc = true_pos / (true_pos + false_pos + false_neg + eps)
     result.label_f1 = 2 * result.label_prec * result.label_pos_recall / (
-            result.label_prec + result.label_pos_recall + eps)
+        result.label_prec + result.label_pos_recall + eps)
 
     result.label_ma = label_ma
     result.ma = np.mean(label_ma)
@@ -172,6 +174,6 @@ def get_signle_metrics(gt_label, preds_probs, threshold=0.45):
     result.instance_prec = np.mean(result.label_prec)
     result.instance_recall = np.mean(result.label_pos_recall)
 
-    #result.error_num, result.fn_num, result.fp_num = false_pos + false_neg, false_neg, false_pos
+    # result.error_num, result.fn_num, result.fp_num = false_pos + false_neg, false_neg, false_pos
 
     return result

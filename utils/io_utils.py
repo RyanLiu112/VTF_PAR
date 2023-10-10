@@ -10,6 +10,7 @@ import pandas as pd
 
 from typing import List, Union
 from PIL import Image, ImageFile
+
 Image.MAX_IMAGE_PIXELS = None
 
 

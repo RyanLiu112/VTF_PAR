@@ -22,15 +22,17 @@ class Scheduler:
      * https://github.com/allenai/allennlp/tree/master/allennlp/training/learning_rate_schedulers
     """
 
-    def __init__(self,
-                 optimizer: torch.optim.Optimizer,
-                 param_group_field: str,
-                 noise_range_t=None,
-                 noise_type='normal',
-                 noise_pct=0.67,
-                 noise_std=1.0,
-                 noise_seed=None,
-                 initialize: bool = True) -> None:
+    def __init__(
+        self,
+        optimizer: torch.optim.Optimizer,
+        param_group_field: str,
+        noise_range_t=None,
+        noise_type='normal',
+        noise_pct=0.67,
+        noise_std=1.0,
+        noise_seed=None,
+        initialize: bool = True
+    ) -> None:
         self.optimizer = optimizer
         self.param_group_field = param_group_field
         self._initial_param_group_field = f"initial_{param_group_field}"

@@ -50,6 +50,7 @@ def set_seed(rand_seed):
     torch.manual_seed(rand_seed)
     torch.cuda.manual_seed(rand_seed)
 
+
 def select_gpus(gpus):
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     if gpus != '':
@@ -57,6 +58,7 @@ def select_gpus(gpus):
         os.environ["CUDA_VISIBLE_DEVICES"] = gpus
     else:
         print('Using default gpu.')
+
 
 def may_mkdirs(dir_name):
     # if not os.cam_path.exists(os.cam_path.dirname(os.cam_path.abspath(fname))):
@@ -312,8 +314,11 @@ def load_ckpt(modules_optims, ckpt_file, load_to_cpu=True, verbose=True):
     for m, sd in zip(modules_optims, ckpt['state_dicts']):
         m.load_state_dict(sd)
     if verbose:
-        print("Resume from ckpt {}, \nepoch: {}, scores: {}".format(
-            ckpt_file, ckpt['ep'], ckpt['scores']))
+        print(
+            "Resume from ckpt {}, \nepoch: {}, scores: {}".format(
+                ckpt_file, ckpt['ep'], ckpt['scores']
+            )
+        )
     return ckpt['ep'], ckpt['scores']
 
 
@@ -328,9 +333,11 @@ def save_ckpt(model, ckpt_files, epoch, metric):
     if not os.path.exists(os.path.dirname(os.path.abspath(ckpt_files))):
         os.makedirs(os.path.dirname(os.path.abspath(ckpt_files)))
 
-    save_dict = {'state_dicts': model.state_dict(),
-                 'epoch': f'{time_str()} in epoch {epoch}',
-                 'metric': metric}
+    save_dict = {
+        'state_dicts': model.state_dict(),
+        'epoch': f'{time_str()} in epoch {epoch}',
+        'metric': metric
+    }
     torch.save(save_dict, ckpt_files)
 
 

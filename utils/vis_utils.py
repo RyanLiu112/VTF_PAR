@@ -11,13 +11,14 @@ from sklearn.metrics import confusion_matrix
 # plt.rcParams["axes.grid"] = False
 
 import warnings
+
 warnings.filterwarnings("ignore")
 LOG_NAME = "logs.txt"
 
 
 def remove_trailing(eval_dict):
     min_num = min([len(v) for k, v in eval_dict.items() if "top5" not in k])
-    new_dict ={}
+    new_dict = {}
     for k, v in eval_dict.items():
         if "top5" not in k:
             new_dict[k] = v[:min_num]
@@ -27,20 +28,21 @@ def remove_trailing(eval_dict):
 def get_meta(job_root, job_path, model_type):
     # get lr, wd, feature-type, dataset
     j_data = job_path.split("/run")[0].split(
-        job_root + "/" + model_type)[-1].split("/")
+        job_root + "/" + model_type
+    )[-1].split("/")
     data_name, feat_type, opt_params = j_data[1], j_data[2], j_data[3]
     lr = float(opt_params.split("_")[0].split("lr")[-1])
     wd = float(opt_params.split("_")[1].split("wd")[-1])
     return data_name, feat_type, lr, wd
 
 
-def update_eval(line, eval_dict, data_name):        
+def update_eval(line, eval_dict, data_name):
     if "top1" in line and "top" in line.split(": top1:")[-1]:
-        metric = "top"     
+        metric = "top"
     else:
         metric = "rocauc"
     top1 = float(line.split(": top1:")[-1].split(metric)[0])
-    eval_type = line.split(" Classification results with ")[-1].split(": top1")[0] 
+    eval_type = line.split(" Classification results with ")[-1].split(": top1")[0]
     eval_type = "".join(eval_type.split("_" + data_name))
     eval_dict[eval_type + "_top1"].append(top1)
 
@@ -51,7 +53,7 @@ def get_nmi(job_path):
     nmi_dict = defaultdict(list)
     num_jobs = 0
     log_temp = []
-    for l in lines:  #, leave=False):
+    for l in lines:  # , leave=False):
         if "Rank of current process:" in l:
             num_jobs += 1
         if num_jobs == 2:
@@ -68,9 +70,11 @@ def get_nmi(job_path):
 
 def get_mean_accuracy(job_path, data_name):
     val_data = torch.load(
-        job_path.replace("logs.txt", f"val_{data_name}_logits.pth"))
+        job_path.replace("logs.txt", f"val_{data_name}_logits.pth")
+    )
     test_data = torch.load(
-        job_path.replace("logs.txt", f"val_{data_name}_logits.pth"))
+        job_path.replace("logs.txt", f"val_{data_name}_logits.pth")
+    )
     v_matrix = confusion_matrix(
         val_data['targets'],
         np.argmax(val_data['joint_logits'], 1)
@@ -79,7 +83,7 @@ def get_mean_accuracy(job_path, data_name):
         test_data['targets'],
         np.argmax(test_data['joint_logits'], 1)
     )
-    return np.mean(v_matrix.diagonal()/v_matrix.sum(axis=1) ) * 100, np.mean(t_matrix.diagonal()/t_matrix.sum(axis=1) ) * 100
+    return np.mean(v_matrix.diagonal() / v_matrix.sum(axis=1)) * 100, np.mean(t_matrix.diagonal() / t_matrix.sum(axis=1)) * 100
 
 
 def get_training_data(job_path, model_type, job_root):
@@ -91,15 +95,15 @@ def get_training_data(job_path, model_type, job_root):
     # cls results for both val and test
     train_loss = []
     eval_dict = defaultdict(list)
-#     best_epoch = -1
+    #     best_epoch = -1
     num_jobs = 0
     total_params = -1
     gradiented_params = -1
     batch_size = None
-    for line in lines:  #, leave=False):
+    for line in lines:  # , leave=False):
         if "{'BATCH_SIZE'" in line and batch_size is None:
             batch_size = int(line.split("'BATCH_SIZE': ")[-1].split(",")[0])
-            
+
         if "Total Parameters: " in line:
             total_params = int(line.split("Total Parameters: ")[-1].split("\t")[0])
             gradiented_params = int(line.split("Gradient Parameters: ")[-1].split("\n")[0])
@@ -144,15 +148,15 @@ def get_time(file):
     per_batch = []
     per_batch_train = []
     for line in lines[::-1]:
-#         print(line)"Test 6/6. loss: 6.097, "
+        #         print(line)"Test 6/6. loss: 6.097, "
         if ". loss:" in line and "Test" in line:
             per_iter = line.split(" s / batch")[0].split(",")[-1]
             per_batch.append(float(per_iter))
         if ". train loss:" in line:
             per_iter = line.split(" s / batch")[0].split(",")[-1]
             per_batch_train.append(float(per_iter))
-            
-    return datetime.timedelta(seconds=(end_time-start_time).total_seconds()), np.mean(per_batch), np.mean(per_batch_train)
+
+    return datetime.timedelta(seconds=(end_time - start_time).total_seconds()), np.mean(per_batch), np.mean(per_batch_train)
 
 
 def get_df(files, model_type, root, is_best=True, is_last=True, max_epoch=300):
@@ -160,7 +164,7 @@ def get_df(files, model_type, root, is_best=True, is_last=True, max_epoch=300):
     for job_path in tqdm(files, desc=model_type):
         train_loss, eval_results, meta_dict, (v_top1, t_top1) = get_training_data(job_path, model_type, root)
         batch_size = meta_dict["batch_size"]
-        
+
         if len(eval_results) == 0:
             print(f"job {job_path} not ready")
             continue
@@ -171,10 +175,10 @@ def get_df(files, model_type, root, is_best=True, is_last=True, max_epoch=300):
         if "val_top1" not in eval_results or "test_top1" not in eval_results:
             print(f"inbalanced: {job_path}")
             continue
-                
+
         for k, v in meta_dict.items():
             pd_dict[k].append(v)
-        
+
         metric_b = "val_top1"
         best_epoch = np.argmax(eval_results[metric_b])
 
@@ -248,19 +252,25 @@ def average_df(df, metric_names=["l-val_top1", "l-val_base_top1"], take_average=
                 data_dict["feature"].append(f_name)
                 data_dict["type"].append(t_name)
                 data_dict["total_runs"].append(len(result))
-        
+
                 for m in metric_names:
                     if take_average:
-                        data_dict[m].append("{:.2f}".format(
-                            np.mean([r for i, r in enumerate(result[m])]),
-                        ))
-                        data_dict[f"{m}-std"].append("{:.2f}".format(
-                            np.std([r for i, r in enumerate(result[m])])
-                        ))
+                        data_dict[m].append(
+                            "{:.2f}".format(
+                                np.mean([r for i, r in enumerate(result[m])]),
+                            )
+                        )
+                        data_dict[f"{m}-std"].append(
+                            "{:.2f}".format(
+                                np.std([r for i, r in enumerate(result[m])])
+                            )
+                        )
                     else:
-                        data_dict[m].append("{:.2f}".format(
-                            np.median([r for i, r in enumerate(result[m])]),
-                        ))
+                        data_dict[m].append(
+                            "{:.2f}".format(
+                                np.median([r for i, r in enumerate(result[m])]),
+                            )
+                        )
                 for h_name in hp_names:
                     data_dict[h_name].append(result[h_name].iloc[0])
 
@@ -287,7 +297,7 @@ def filter_df(df, sorted_cols, max_num):
                 result = result.sort_values(cols, ignore_index=True)
 
                 _num = min([max_num, len(result)])
-    #             print(result.iloc[-_num:])
+                #             print(result.iloc[-_num:])
                 df_list.append(result.iloc[-_num:])
     return pd.concat(df_list)
 

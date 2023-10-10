@@ -12,18 +12,22 @@ np.random.seed(0)
 random.seed(0)
 
 attr_words = [
-    'carring backpack',#0
-    'carring shoulder bag',#1
-    'carring hand bag',#2
-    'shoes boots',#3
-    'female',#4
-    'heaed hat',#5
-    'shoes',#6
-    'top long',#7
-    'pose frontal','pose lateral-frontal','pose lateral','pose lateral-back','pose back','pose varies',#pose [8:14]
-    'motion walking','motion running','motion riding','motion staying','motion varies',#motion[14:19]
-    'top color black','top color white','top color red','top color purple','top color gray','top color blue','top color green','top color brown','top color complex',#[19:28]
-    'bottom color black','bottom color white','bottom color red','bottom color grey','bottom color blue','bottom color green','bottom color brown','bottom color complex'#[28:36]
+    'carring backpack',  # 0
+    'carring shoulder bag',  # 1
+    'carring hand bag',  # 2
+    'shoes boots',  # 3
+    'female',  # 4
+    'heaed hat',  # 5
+    'shoes',  # 6
+    'top long',  # 7
+    'pose frontal', 'pose lateral-frontal', 'pose lateral', 'pose lateral-back', 'pose back', 'pose varies',  # pose [8:14]
+    'motion walking', 'motion running', 'motion riding', 'motion staying', 'motion varies',  # motion[14:19]
+    'top color black', 'top color white', 'top color red', 'top color purple', 'top color gray', 'top color blue', 'top color green',
+    'top color brown', 'top color complex',
+    # [19:28]
+    'bottom color black', 'bottom color white', 'bottom color red', 'bottom color grey', 'bottom color blue', 'bottom color green',
+    'bottom color brown', 'bottom color complex'
+    # [28:36]
 ]
 
 
@@ -120,8 +124,8 @@ def generate_data_description(save_dir):
     dataset.attr_vectors = get_label_embeds(attr_words)
 
     dataset.label = np.concatenate((np.array(trainval_gt_list), np.array(test_gt_list)), axis=0)
-    assert dataset.label.shape == (2636+2196, 36), \
-            f'dataset.label.shape {dataset.label.shape}'
+    assert dataset.label.shape == (2636 + 2196, 36), \
+        f'dataset.label.shape {dataset.label.shape}'
 
     dataset.partition = EasyDict()
     dataset.attr_name = attr_words

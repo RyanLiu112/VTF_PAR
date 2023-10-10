@@ -10,7 +10,6 @@ import torch
 
 from .scheduler import Scheduler
 
-
 _logger = logging.getLogger(__name__)
 
 
@@ -23,32 +22,37 @@ class CosineLRScheduler(Scheduler):
     https://github.com/allenai/allennlp/blob/master/allennlp/training/learning_rate_schedulers/cosine.py
     """
 
-    def __init__(self,
-                 optimizer: torch.optim.Optimizer,
-                 t_initial: int,
-                 t_mul: float = 1.,
-                 lr_min: float = 0.,
-                 decay_rate: float = 1.,
-                 warmup_t=0,
-                 warmup_lr_init=0,
-                 warmup_prefix=False,
-                 cycle_limit=0,
-                 t_in_epochs=True,
-                 noise_range_t=None,
-                 noise_pct=0.67,
-                 noise_std=1.0,
-                 noise_seed=42,
-                 initialize=True) -> None:
+    def __init__(
+        self,
+        optimizer: torch.optim.Optimizer,
+        t_initial: int,
+        t_mul: float = 1.,
+        lr_min: float = 0.,
+        decay_rate: float = 1.,
+        warmup_t=0,
+        warmup_lr_init=0,
+        warmup_prefix=False,
+        cycle_limit=0,
+        t_in_epochs=True,
+        noise_range_t=None,
+        noise_pct=0.67,
+        noise_std=1.0,
+        noise_seed=42,
+        initialize=True
+    ) -> None:
         super().__init__(
             optimizer, param_group_field="lr",
             noise_range_t=noise_range_t, noise_pct=noise_pct, noise_std=noise_std, noise_seed=noise_seed,
-            initialize=initialize)
+            initialize=initialize
+        )
 
         assert t_initial > 0
         assert lr_min >= 0
         if t_initial == 1 and t_mul == 1 and decay_rate == 1:
-            _logger.warning("Cosine annealing scheduler will have no effect on the learning "
-                           "rate since t_initial = t_mul = eta_mul = 1.")
+            _logger.warning(
+                "Cosine annealing scheduler will have no effect on the learning "
+                "rate since t_initial = t_mul = eta_mul = 1."
+            )
         self.t_initial = t_initial
         self.t_mul = t_mul
         self.lr_min = lr_min
